@@ -1,0 +1,327 @@
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#c9e8f5">
+<title>Baeda Wordle Week 🩵</title>
+<style>
+:root{--blue:#c9e8f5;--blue-deep:#77b9d5;--cream:#fffaf0;--ink:#344b5a;--gold:#efd27b;--green:#83bca1;--grey:#aab5bc;--card:#fffdf8;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--cream);color:var(--ink);font-family:var(--font);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background-image:var(--bg-image,none);background-size:cover;background-position:center;opacity:.18;pointer-events:none;z-index:-2}
+.doodle-layer{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:var(--doodle-image,none);background-repeat:repeat;background-size:260px auto;opacity:var(--doodle-opacity,.22)}
+button,input,textarea,select{font:inherit}button{cursor:pointer;border:0}
+.app{width:min(100%,680px);margin:auto;padding:28px 16px 50px;position:relative}
+header{text-align:center;padding:10px 0 18px}
+h1{font-size:clamp(1.8rem,6vw,2.6rem);line-height:1.1;margin:0 0 8px;color:#477f99}
+.subtitle{margin:0 auto;color:#718894;max-width:38ch}
+.egg{position:fixed;z-index:0;pointer-events:none;animation:float var(--dur,7s) ease-in-out infinite;opacity:.7;font-size:var(--size,23px)}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-24px) rotate(9deg)}}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes confetti{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.card{background:var(--card);border:1px solid #e6eff0;border-radius:24px;padding:20px;box-shadow:0 10px 30px #6b9caf18;margin:12px 0;position:relative;z-index:1}
+.status{text-align:center;font-weight:650;color:#5b879b;margin:0 0 14px}
+.date-line{text-align:center;color:#8799a0;font-size:.9rem;margin:-6px 0 14px}
+.board{display:grid;grid-template-rows:repeat(6,1fr);gap:7px;width:min(100%,320px);margin:12px auto 18px}
+.board-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.tile{aspect-ratio:1;border:2px solid #d9e5e8;border-radius:9px;display:grid;place-items:center;font-size:1.45rem;font-weight:800;text-transform:uppercase;background:#fffefa;transition:transform .15s}
+.tile.filled{border-color:#9bc8d8;animation:pop .12s}
+.tile.correct{background:var(--green);border-color:var(--green);color:white}
+.tile.present{background:var(--gold);border-color:var(--gold);color:#594b2b}
+.tile.absent{background:var(--grey);border-color:var(--grey);color:white}
+.keyboard{display:grid;gap:7px;max-width:480px;margin:auto}
+.key-row{display:flex;justify-content:center;gap:5px}
+.key{min-width:0;flex:1;height:49px;border-radius:10px;background:#e5f2f6;color:#42677a;font-weight:750;font-size:.95rem;box-shadow:0 2px 0 #c9dfe7}
+.key.wide{flex:1.5;font-size:.75rem}.key.correct{background:var(--green);color:white}.key.present{background:var(--gold);color:#594b2b}.key.absent{background:#aab5bc;color:white}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.primary,.secondary{border-radius:999px;padding:11px 20px;font-weight:700;transition:transform .15s,filter .15s}
+.primary{background:var(--blue-deep);color:white;box-shadow:0 4px 0 #5c9fbd}
+.secondary{background:#f2eee3;color:#6b777a}
+button:active{transform:translateY(2px)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.message{text-align:center;min-height:25px;font-weight:650;margin:12px 0 0;color:#648b9a}
+.hint{display:none;background:#f3f8f7;border-radius:14px;padding:12px;text-align:center;margin:12px auto 0;max-width:440px;color:#607c81}
+.smallprint{text-align:center;color:#91a0a4;font-size:.78rem;line-height:1.5;margin:18px auto 0;max-width:52ch}
+.admin-toggle{display:block;margin:18px auto 0;background:transparent;color:#89a5ae;text-decoration:underline;font-size:.85rem}
+#editor{display:none}.editor h2{margin:0 0 8px;color:#52859b}.editor-intro{font-size:.9rem;color:#788b91}
+.field{display:grid;gap:5px;margin:12px 0}.field label{font-size:.88rem;font-weight:700;color:#587887}.field input,.field textarea,.field select{width:100%;border:1px solid #d7e5e8;border-radius:11px;padding:10px;background:white;color:#344b5a}.field textarea{min-height:74px;resize:vertical}
+.puzzle-edit{border-top:1px solid #e9eeee;padding-top:10px;margin-top:12px}.puzzle-edit h3{margin:0;color:#5c8797;font-size:1rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.save-note{color:#47886c;text-align:center;min-height:22px;font-weight:700}
+.overlay{position:fixed;inset:0;background:#29495dcc;display:none;place-items:center;padding:20px;z-index:10}
+.modal{width:min(100%,480px);background:#fffaf0;border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 20px 80px #203d4b55;animation:pop .3s}
+.modal h2{color:#4f91ad;font-size:clamp(1.6rem,6vw,2.2rem);margin:0 0 12px}.modal p{line-height:1.65}.modal .primary{margin-top:8px}
+.birthday-art{display:none;max-width:min(100%,260px);max-height:190px;object-fit:contain;margin:4px auto 14px;border-radius:14px}.art-preview{display:block;max-width:100%;max-height:150px;object-fit:contain;margin:8px 0;border-radius:12px}.file-help{font-size:.8rem;color:#83969c;line-height:1.45}
+.confetti{position:fixed;top:-20px;z-index:11;pointer-events:none;animation:confetti 3.5s linear forwards}
+@media(max-width:420px){.app{padding:18px 12px 36px}.card{padding:15px}.key{height:45px;font-size:.85rem}.tile{font-size:1.25rem}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="doodle-layer" id="doodleLayer" aria-hidden="true"></div>
+<div id="eggs" aria-hidden="true"></div>
+<main class="app">
+<header><h1 id="heading">Baeda Wordle Week 🩵</h1><p class="subtitle" id="subtitle">Seven little days, seven little words, all for you.</p></header>
+<section class="card" id="game">
+<p class="status" id="status">Your birthday word adventure</p>
+<p class="date-line" id="dateLine"></p>
+<div class="board" id="board" aria-label="Wordle game board"></div>
+<div class="keyboard" id="keyboard" aria-label="On-screen keyboard"></div>
+<div class="actions"><button class="secondary" id="hintBtn">💌 Show hint</button><button class="primary" id="newPuzzleBtn" hidden="">Continue</button></div>
+<div class="hint" id="hint"></div>
+<p class="message" id="message" aria-live="polite"></p>
+</section>
+<p class="smallprint">Your progress and settings are saved in this browser on this device. They do not automatically sync to another phone, tablet or computer.</p>
+<button class="admin-toggle" id="editToggle">✿ Private editing area</button>
+<section class="card editor" id="editor">
+<h2>Make it yours 🩵</h2>
+<p class="editor-intro">Change the seven words, hints, dates and look of the page here. Answers must be exactly five letters. Changes are saved in this browser.</p>
+<div class="field"><label for="headingInput">Website heading</label><input id="headingInput"></div>
+<div class="field"><label for="subtitleInput">Subtitle</label><input id="subtitleInput"></div>
+<div id="puzzleFields"></div>
+<div class="field"><label for="finalMessage">Final birthday message (shown after puzzle 7 on 4 December)</label><textarea id="finalMessage"></textarea></div>
+<h3>Look and feel</h3>
+<div class="two">
+<div class="field"><label for="blueColor">Baby blue</label><input type="color" id="blueColor"></div>
+<div class="field"><label for="creamColor">Cream</label><input type="color" id="creamColor"></div>
+<div class="field"><label for="greenColor">Correct-letter green</label><input type="color" id="greenColor"></div>
+<div class="field"><label for="goldColor">Wrong-place gold</label><input type="color" id="goldColor"></div>
+</div>
+<div class="field"><label for="fontChoice">Font</label><select id="fontChoice"><option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">Soft modern (default)</option><option value="Georgia,serif">Romantic serif</option><option value="'Trebuchet MS',sans-serif">Playful rounded</option><option value="Arial,sans-serif">Simple classic</option></select></div>
+<div class="field"><label for="backgroundImage">Background image URL (optional)</label><input id="backgroundImage" placeholder="https://…"></div>
+<h3>Hand-drawn artwork 🩵</h3>
+<div class="field"><label for="birthdayArtInput">3 December birthday popup drawing (GIF, PNG or JPG)</label><input id="birthdayArtInput" type="file" accept="image/gif,image/png,image/jpeg,image/webp"><img id="birthdayArtPreview" class="art-preview" alt="Birthday artwork preview" hidden><button type="button" class="secondary" id="clearBirthdayArt">Remove birthday drawing</button><span class="file-help">Choose your own hand-drawn animation or picture. GIFs stay animated. The image is saved in this browser and included when you download the personalised website.</span></div>
+<div class="field"><label for="doodleImageInput">Background doodles (transparent PNG recommended)</label><input id="doodleImageInput" type="file" accept="image/png,image/jpeg,image/webp"><img id="doodleImagePreview" class="art-preview" alt="Background doodles preview" hidden><button type="button" class="secondary" id="clearDoodleImage">Remove background doodles</button><span class="file-help">Upload a repeating doodle pattern you drew. A transparent PNG works especially well.</span></div>
+<div class="field"><label for="doodleOpacity">Doodle visibility</label><input id="doodleOpacity" type="range" min="0" max="60" value="22"><span class="file-help">Move the slider down if the doodles make the Wordle board hard to read.</span></div>
+<div class="two">
+<div class="field"><label for="eggCount">Floating eggs (0–30)</label><input type="number" id="eggCount" min="0" max="30"></div>
+<div class="field"><label for="eggsEnabled">Egg animations</label><select id="eggsEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
+</div>
+<div class="actions"><button class="primary" id="saveBtn">Save my changes</button><button class="secondary" id="exportBtn">Download personalised website</button><button class="secondary" id="closeEditor">Close</button></div>
+<p class="save-note" id="saveNote" aria-live="polite"></p>
+<p class="smallprint">This is a free static website. The editing area is separated from the game to prevent accidental changes, but it is not password-protected: anyone with access to the page can open it, and static-site answers can be inspected. Do not put private or sensitive information here.</p>
+</section>
+</main>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="modal"><div style="font-size:2.5rem" id="modalEmoji">🥚🎂🩵</div><img id="birthdayArt" class="birthday-art" alt="Hand-drawn birthday artwork"><h2 id="modalTitle"></h2><p id="modalText"></p><button class="primary" id="modalClose">Back to our game 🩵</button></div>
+</div>
+<script>
+const TEMPLATE_HTML = document.documentElement.outerHTML;
+const DEFAULT_CONFIG = {
+  "heading": "Baeda Wordle Week!!",
+  "subtitle": "complete a word and you unlock a sweet prize ;)",
+  "puzzles": [
+    {
+      "answer": "SPICY",
+      "hint": "NO HINT haha",
+      "date": "2026-11-28"
+    },
+    {
+      "answer": "BLOND",
+      "hint": "your true type :(",
+      "date": "2026-11-29"
+    },
+    {
+      "answer": "GALBI",
+      "hint": "An Algerian romantic word ",
+      "date": "2026-11-30"
+    },
+    {
+      "answer": "SUSHI",
+      "hint": "I took your virginity",
+      "date": "2026-12-01"
+    },
+    {
+      "answer": "LOVER",
+      "hint": "I loooove youuuuuuuuuuuuu",
+      "date": "2026-12-02"
+    },
+    {
+      "answer": "JAPAN",
+      "hint": "Its my sweet husband birthday today woohooo",
+      "date": "2026-12-03"
+    },
+    {
+      "answer": "SLEEP",
+      "hint": "your true love (besides me)",
+      "date": "2026-12-04"
+    }
+  ],
+  "finalMessage": "BAEDA YOU DID IT! I hope you enjoyed this week game and collected all your blank street gifts hehe I adore you and love you so much my soulmate",
+  "colors": {
+    "blue": "#c9e8f5",
+    "cream": "#fffaf0",
+    "green": "#83bca1",
+    "gold": "#efd27b"
+  },
+  "font": "'Trebuchet MS',sans-serif",
+  "backgroundImage": "",
+  "eggCount": 12,
+  "eggsEnabled": true,
+  "birthdayArt": "",
+  "doodleImage": "",
+  "doodleOpacity": 22
+};
+const CONFIG_KEY="baedaWordleConfigV1", PROGRESS_KEY="baedaWordleProgressV1";
+const clone=x=>JSON.parse(JSON.stringify(x));
+function load(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v??clone(fallback)}catch{return clone(fallback)}}
+let config=load(CONFIG_KEY,DEFAULT_CONFIG);
+function normalizeConfig(c){
+ const d=clone(DEFAULT_CONFIG);
+ return {...d,...c,colors:{...d.colors,...(c.colors||{})},puzzles:d.puzzles.map((p,i)=>({...p,...((c.puzzles||[])[i]||{})}))};
+}
+config=normalizeConfig(config);
+let progress=load(PROGRESS_KEY,{completed:[],games:{},birthdayShown:false,finalShown:false});
+if(!Array.isArray(progress.completed))progress.completed=[];
+if(!progress.games)progress.games={};
+let currentIndex=-1, gameState=null;
+const $=id=>document.getElementById(id);
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+const prettyDate=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"})};
+function saveProgress(){localStorage.setItem(PROGRESS_KEY,JSON.stringify(progress))}
+function applyTheme(){
+ document.documentElement.style.setProperty("--blue",config.colors.blue);
+ document.documentElement.style.setProperty("--cream",config.colors.cream);
+ document.documentElement.style.setProperty("--green",config.colors.green);
+ document.documentElement.style.setProperty("--gold",config.colors.gold);
+ document.documentElement.style.setProperty("--font",config.font);
+ document.body.style.setProperty("--bg-image",config.backgroundImage?`url("${config.backgroundImage.replace(/["\\]/g,"")}")`:"none");
+ document.documentElement.style.setProperty("--doodle-image",config.doodleImage?`url("${config.doodleImage}")`:"none");
+ document.documentElement.style.setProperty("--doodle-opacity",String((config.doodleOpacity??22)/100));
+ $("heading").textContent=config.heading;$("subtitle").textContent=config.subtitle;
+ renderEggs();
+}
+function renderEggs(){
+ const host=$("eggs");host.innerHTML="";
+ if(!config.eggsEnabled)return;
+ const n=Math.max(0,Math.min(30,Number(config.eggCount)||0));
+ for(let i=0;i<n;i++){const e=document.createElement("span");e.className="egg";e.textContent="🥚";e.style.left=(3+(i*37)%94)+"%";e.style.top=(5+(i*23)%84)+"%";e.style.setProperty("--dur",(5+(i%6))+"s");e.style.setProperty("--size",(17+(i%4)*5)+"px");e.style.animationDelay=(-i*.7)+"s";host.append(e)}
+}
+function availableIndex(){
+ const date=today();
+ for(let i=0;i<7;i++)if(!progress.completed.includes(i)&&config.puzzles[i].date<=date)return i;
+ return -1;
+}
+function nextLockedIndex(){
+ for(let i=0;i<7;i++)if(!progress.completed.includes(i)&&config.puzzles[i].date>today())return i;
+ return -1;
+}
+function render(){
+ applyTheme();
+ const i=availableIndex();currentIndex=i;
+ $("board").innerHTML="";$("keyboard").innerHTML="";$("hint").style.display="none";$("message").textContent="";
+ $("hintBtn").disabled=true;$("newPuzzleBtn").hidden=true;
+ if(i===-1){
+  const next=nextLockedIndex();
+  $("status").textContent=progress.completed.length===7?"All seven words completed 🩵":"Your next word is on its way 🥚";
+  $("dateLine").textContent=next>=0?`Puzzle ${next+1} opens ${prettyDate(config.puzzles[next].date)}.`:"Your seven-day adventure is complete.";
+  $("message").textContent=progress.completed.length===7?"You did it. What a lovely week!":"Come back on the next puzzle date for another little challenge.";
+  return;
+ }
+ const p=config.puzzles[i];
+ $("status").textContent=`Puzzle ${i+1} of 7 · ${progress.completed.length} completed`;
+ $("dateLine").textContent=prettyDate(p.date);
+ $("hintBtn").disabled=false;
+ gameState=progress.games[i]||{guesses:[],done:false,won:false};
+ if(gameState.done){
+  drawBoard();drawKeyboard();$("message").textContent=gameState.won?"You solved it! Lovely work 🩵":`The word was ${p.answer.toUpperCase()}. There’s always tomorrow’s puzzle.`;
+  $("hintBtn").disabled=true;return;
+ }
+ drawBoard();drawKeyboard();
+}
+function drawBoard(){
+ const board=$("board");board.innerHTML="";
+ for(let r=0;r<6;r++){const row=document.createElement("div");row.className="board-row";
+  for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile";const word=gameState.guesses[r]||(r===gameState.guesses.length?(gameState.current||""):"");if(word[c]){t.textContent=word[c];t.classList.add("filled")}
+   if(r<gameState.guesses.length){const result=score(gameState.guesses[r],config.puzzles[currentIndex].answer.toUpperCase());t.classList.add(result[c])}
+   row.append(t)}
+  board.append(row)}
+}
+function score(guess,answer){
+ const out=Array(5).fill("absent"),remaining={};
+ for(let i=0;i<5;i++){if(guess[i]===answer[i])out[i]="correct";else remaining[answer[i]]=(remaining[answer[i]]||0)+1}
+ for(let i=0;i<5;i++)if(out[i]!=="correct"&&remaining[guess[i]]>0){out[i]="present";remaining[guess[i]]--}
+ return out;
+}
+const rows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
+function drawKeyboard(){
+ const host=$("keyboard");host.innerHTML="";const states={};
+ gameState.guesses.forEach(g=>score(g,config.puzzles[currentIndex].answer.toUpperCase()).forEach((s,i)=>{const ch=g[i];if(states[ch]!=="correct"&&(states[ch]!=="present"||s==="correct"))states[ch]=s}));
+ rows.forEach((letters,ri)=>{const row=document.createElement("div");row.className="key-row";
+  if(ri===2)addKey(row,"ENTER","wide",submitGuess);
+  [...letters].forEach(ch=>addKey(row,ch,states[ch]||"",()=>typeLetter(ch)));
+  if(ri===2)addKey(row,"⌫","wide",deleteLetter);host.append(row)});
+}
+function addKey(row,label,cls,fn){const b=document.createElement("button");b.className="key "+cls;b.textContent=label;b.type="button";b.addEventListener("click",fn);row.append(b)}
+function typeLetter(ch){if(!gameState||gameState.done)return;if(gameState.current===undefined)gameState.current="";if(gameState.current.length<5)gameState.current+=ch;drawBoard()}
+function deleteLetter(){if(!gameState||gameState.done)return;gameState.current=(gameState.current||"").slice(0,-1);drawBoard()}
+function submitGuess(){
+ if(!gameState||gameState.done)return;
+ const guess=(gameState.current||"").toUpperCase();
+ if(guess.length!==5){$("message").textContent="Your guess needs five letters.";return}
+ gameState.guesses.push(guess);gameState.current="";
+ const answer=config.puzzles[currentIndex].answer.toUpperCase();
+ if(guess===answer){gameState.done=true;gameState.won=true;completePuzzle(true)}
+ else if(gameState.guesses.length>=6){gameState.done=true;gameState.won=false;completePuzzle(false)}
+ else {$("message").textContent="Keep going, you’ve got this! 🩵";persistGame();drawBoard();drawKeyboard()}
+}
+function persistGame(){progress.games[currentIndex]=gameState;saveProgress()}
+function completePuzzle(won){
+ progress.games[currentIndex]=gameState;
+ if(!progress.completed.includes(currentIndex))progress.completed.push(currentIndex);
+ saveProgress();drawBoard();drawKeyboard();
+ $("hintBtn").disabled=true;
+ if(won){
+  $("message").textContent="You found the word! 🩵";
+  if(currentIndex===5&&today()==="2026-12-03"&&!progress.birthdayShown){progress.birthdayShown=true;saveProgress();showModal("HAPPY BIRTHDAY, BAEDA!! 🎂🎉🩵","Happy birthday, my love! I hope today is full of laughter, warmth and all the happiness you deserve. This little word is just one tiny reminder of how special you are to me. 🩵","🥚🎂🎉",config.birthdayArt)}
+  else if(currentIndex===6&&today()==="2026-12-04"&&!progress.finalShown){progress.finalShown=true;saveProgress();showModal("The end of your birthday week 🩵",config.finalMessage,"💌🥚✨")}
+  else $("message").textContent="You solved it! Your next puzzle unlocks on its own date. 🩵";
+ }else $("message").textContent=`Six guesses used. The word was ${config.puzzles[currentIndex].answer.toUpperCase()}.`;
+ render();
+}
+function showModal(title,body,emoji,art=""){$("modalTitle").textContent=title;$("modalText").textContent=body;$("modalEmoji").textContent=emoji;const img=$("birthdayArt");img.src=art||"";img.style.display=art?"block":"none";$("overlay").style.display="grid";celebrate()}
+function celebrate(){for(let i=0;i<45;i++){const s=document.createElement("span");s.className="confetti";s.textContent=["🩵","🥚","🎉","✨","💙","🎂"][i%6];s.style.left=Math.random()*100+"%";s.style.animationDelay=Math.random()*1.2+"s";s.style.fontSize=(15+Math.random()*17)+"px";document.body.append(s);setTimeout(()=>s.remove(),5000)}}
+$("modalClose").addEventListener("click",()=>$("overlay").style.display="none");
+$("hintBtn").addEventListener("click",()=>{if(currentIndex<0)return;$("hint").textContent=config.puzzles[currentIndex].hint;$("hint").style.display="block"});
+$("newPuzzleBtn").addEventListener("click",render);
+document.addEventListener("keydown",e=>{if($("editor").style.display==="block"||$("overlay").style.display==="grid")return;if(currentIndex<0||!gameState||gameState.done)return;if(e.key==="Enter")submitGuess();else if(e.key==="Backspace")deleteLetter();else if(/^[a-zA-Z]$/.test(e.key))typeLetter(e.key.toUpperCase())});
+$("editToggle").addEventListener("click",()=>{const show=$("editor").style.display!=="block";$("editor").style.display=show?"block":"none";if(show)fillEditor();});
+$("closeEditor").addEventListener("click",()=>$("editor").style.display="none");
+function fillEditor(){
+ $("headingInput").value=config.heading;$("subtitleInput").value=config.subtitle;$("finalMessage").value=config.finalMessage;
+ $("blueColor").value=config.colors.blue;$("creamColor").value=config.colors.cream;$("greenColor").value=config.colors.green;$("goldColor").value=config.colors.gold;
+ $("fontChoice").value=config.font;$("backgroundImage").value=config.backgroundImage;$("eggCount").value=config.eggCount;$("eggsEnabled").value=String(config.eggsEnabled);$("doodleOpacity").value=config.doodleOpacity??22;
+  setPreview("birthdayArtPreview",config.birthdayArt);setPreview("doodleImagePreview",config.doodleImage);
+ const host=$("puzzleFields");host.innerHTML="";
+ config.puzzles.forEach((p,i)=>{const wrap=document.createElement("div");wrap.className="puzzle-edit";const h=document.createElement("h3");h.textContent=`Puzzle ${i+1}`;wrap.append(h);
+  const fields=[["Answer (5 letters)","answer",p.answer],["Hint","hint",p.hint],["Unlock date","date",p.date]];
+  fields.forEach(([label,key,value])=>{const f=document.createElement("div");f.className="field";const l=document.createElement("label");l.textContent=label;const input=document.createElement("input");input.type=key==="date"?"date":"text";input.value=value;input.dataset.puzzle=i;input.dataset.key=key;if(key==="answer"){input.maxLength=5;input.autocapitalize="characters"}f.append(l,input);wrap.append(f)});host.append(wrap)});
+}
+function setPreview(id,data){const img=$(id);if(data){img.src=data;img.hidden=false}else{img.removeAttribute("src");img.hidden=true}}
+function readArtwork(inputId,configKey,previewId){
+ const file=$(inputId).files[0];if(!file)return;
+ if(file.size>5*1024*1024){$("saveNote").textContent="Please choose an image smaller than 5 MB.";$(inputId).value="";return}
+ const reader=new FileReader();reader.onload=()=>{config[configKey]=reader.result;setPreview(previewId,reader.result);applyTheme();$("saveNote").textContent="Artwork added — press Save my changes to keep it 🩵"};reader.readAsDataURL(file);
+}
+$("birthdayArtInput").addEventListener("change",()=>readArtwork("birthdayArtInput","birthdayArt","birthdayArtPreview"));
+$("doodleImageInput").addEventListener("change",()=>readArtwork("doodleImageInput","doodleImage","doodleImagePreview"));
+$("clearBirthdayArt").addEventListener("click",()=>{config.birthdayArt="";$("birthdayArtInput").value="";setPreview("birthdayArtPreview","");$("saveNote").textContent="Birthday drawing removed — press Save my changes."});
+$("clearDoodleImage").addEventListener("click",()=>{config.doodleImage="";$("doodleImageInput").value="";setPreview("doodleImagePreview","");applyTheme();$("saveNote").textContent="Background doodles removed — press Save my changes."});
+$("doodleOpacity").addEventListener("input",()=>{config.doodleOpacity=Number($("doodleOpacity").value);applyTheme()});
+$("saveBtn").addEventListener("click",()=>{
+ const inputs=[...$("puzzleFields").querySelectorAll("input")];
+ for(const input of inputs){
+  if(input.dataset.key==="answer"&&!/^[a-zA-Z]{5}$/.test(input.value.trim())){input.focus();$("saveNote").textContent=`Puzzle ${Number(input.dataset.puzzle)+1}: answer must be exactly five letters.`;return}
+  if(input.dataset.key==="date"&&!/^\d{4}-\d{2}-\d{2}$/.test(input.value)){input.focus();$("saveNote").textContent=`Puzzle ${Number(input.dataset.puzzle)+1}: please choose an unlock date.`;return}
+ }
+ for(const input of inputs){const i=Number(input.dataset.puzzle),key=input.dataset.key;config.puzzles[i][key]=key==="answer"?input.value.trim().toUpperCase():input.value}
+ config.heading=$("headingInput").value.trim()||DEFAULT_CONFIG.heading;config.subtitle=$("subtitleInput").value.trim();config.finalMessage=$("finalMessage").value;
+ config.colors={blue:$("blueColor").value,cream:$("creamColor").value,green:$("greenColor").value,gold:$("goldColor").value};
+ config.font=$("fontChoice").value;config.backgroundImage=$("backgroundImage").value.trim();config.doodleOpacity=Number($("doodleOpacity").value);config.eggCount=Math.max(0,Math.min(30,Number($("eggCount").value)||0));config.eggsEnabled=$("eggsEnabled").value==="true";
+ localStorage.setItem(CONFIG_KEY,JSON.stringify(config));$("saveNote").textContent="Saved! Your changes are ready 🩵";render();
+});
+$("exportBtn").addEventListener("click",()=>{
+ const personalised=TEMPLATE_HTML.replace(/const DEFAULT_CONFIG = \{[\s\S]*?\n\};/,"const DEFAULT_CONFIG = "+JSON.stringify(config,null,2)+";");
+ if(personalised===TEMPLATE_HTML){$("saveNote").textContent="Could not prepare the personalised file. Please try again.";return}
+ const blob=new Blob([personalised],{type:"text/html;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="index.html";document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
+ $("saveNote").textContent="Your personalised index.html has been downloaded. Upload that file to GitHub Pages 🩵";
+});
+render();
+</script></body></html>
